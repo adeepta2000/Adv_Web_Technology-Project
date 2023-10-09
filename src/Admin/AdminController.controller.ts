@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, ParseIntPipe, UsePipes, ValidationPipe, UseInterceptors, UploadedFile } from "@nestjs/common";
 import { AdminForm } from "./DTOs/AdminForm.dto";
 import { AgentForm } from "src/Agent/DTOs/AgentForm.dto";
 import { EmployeeForm } from "src/Employee/DTOs/EmployeeForm.dto";
 import { CustomerForm } from "src/Customer/DTOs/CustomerForm.dto";
 import { ContentForm } from "./DTOs/ContentForm.dto";
 import { PackageForm } from "./DTOs/PackageFrom.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { MulterError, diskStorage } from "multer";
 
 const users = [
     { id: 1, FirstName: "Adeepta", LastName: "Shushil", Username: "shuvo", Email: "shuvo@gmail.com", Address:"Nikunja-2", Password:"adee12345"},
@@ -20,7 +22,7 @@ export class AdminController
     }
 
     @Get('/:id')
-    getUserById(@Param('id') id: number): any {
+    getUserById(@Param('id', ParseIntPipe) id: number): any {
 
         const user = users.find((user) => user.id == id);
 
@@ -32,6 +34,7 @@ export class AdminController
     }
 
     @Post('/create')
+    @UsePipes(new ValidationPipe())
     createAdmin(@Body() adminData: AdminForm): any {
     
         return {
@@ -50,6 +53,27 @@ export class AdminController
           return 'Admin is deleted';
     }
 
+    @Post('/imageupload')
+    @UseInterceptors(FileInterceptor('myfile',{ fileFilter: (req, file, cb) => 
+        {
+            if (file.originalname.match(/^.*\.(jpg|webp|png|jpeg)$/))
+            cb(null, true);
+            else {
+                cb(new MulterError('LIMIT_UNEXPECTED_FILE', 'image'), false);
+            }
+        },
+        limits: { fileSize: 30000 },
+        storage:diskStorage({
+            destination: './Uploaded_Image',
+            filename: function (req, file, cb) {
+                cb(null,Date.now()+file.originalname)
+            },
+        })
+    }))
+    uploadFile(@UploadedFile() file: Express.Multer.File) {
+        console.log(file);
+        return file;
+    }
 
     @Post('/agent/create')
     createAgent(@Body() agentData: AgentForm): any {
