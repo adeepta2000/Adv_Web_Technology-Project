@@ -6,4 +6,5 @@ export class EmployeeForm{
     Email: string;
     Address: string;
     Password: string;
+    
 }
