@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, ParseIntPipe, UsePipes, ValidationPipe, UseInterceptors, UploadedFile } from "@nestjs/common";
-import { AdminForm } from "./DTOs/AdminForm.dto";
+import { AdminForm, AdminUpdateInfo } from "./DTOs/AdminForm.dto";
 import { AgentForm } from "src/Agent/DTOs/AgentForm.dto";
 import { EmployeeForm } from "src/Employee/DTOs/EmployeeForm.dto";
 import { CustomerForm } from "src/Customer/DTOs/CustomerForm.dto";
@@ -7,50 +7,55 @@ import { ContentForm } from "./DTOs/ContentForm.dto";
 import { PackageForm } from "./DTOs/PackageFrom.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { MulterError, diskStorage } from "multer";
-
-const users = [
-    { id: 1, FirstName: "Adeepta", LastName: "Shushil", Username: "shuvo", Email: "shuvo@gmail.com", Address:"Nikunja-2", Password:"adee12345"},
-    { id: 2, FirstName: "Shotodru", LastName: "Baidya", Username: "shoto", Email: "shoto@gmail.com", Address:"Agrabad", Password:"shoto12345"}
-];
+import { AdminService } from "./AdminService.service";
+import { AdminEntity } from "./Entities/AdminEntity.entity";
 
 @Controller('/admin')
 export class AdminController
 {
+    constructor(private readonly adminService: AdminService) {}
+
+    
     @Get('/index')
     getAllUsers() :any{
-        return users;
+        return this.adminService.getAll();
     }
 
-    @Get('/:id')
-    getUserById(@Param('id', ParseIntPipe) id: number): any {
+    @Get('/searchadminby/:id')
+    getUserById(@Param('id', ParseIntPipe) id: number): Promise<AdminEntity> {
 
-        const user = users.find((user) => user.id == id);
-
-        if (!user) {
-            throw new NotFoundException(`User with ID ${id} not found`);
-        }
-
-        return user;
+        return this.adminService.getAdminById(id);
     }
 
-    @Post('/create')
+    @Post('/createadmin')
     @UsePipes(new ValidationPipe())
-    createAdmin(@Body() adminData: AdminForm): any {
-    
-        return {
-            message: "Admin created successfully",
-            data: adminData,
-        };
+    @UseInterceptors(FileInterceptor('profilepic',
+    { fileFilter: (req, file, cb) => {
+        if (file.originalname.match(/^.*\.(jpg|webp|png|jpeg)$/))
+        cb(null, true);
+    else {
+        cb(new MulterError('LIMIT_UNEXPECTED_FILE', 'image'), false);
+    }},
+    limits: { fileSize: 30000 },
+    storage:diskStorage({
+        destination: './upload',
+        filename: function (req, file, cb) {
+            cb(null,Date.now()+file.originalname)
+        },})
+    }))
+    addAdmin(@Body() adminInfo:AdminForm, @UploadedFile()  myfile: Express.Multer.File) {
+        adminInfo.filename = myfile.filename;
+        return this.adminService.addAdmin(adminInfo);
     }
 
     @Put('/updateadmin/:id')
-    updateAdmin(){
-        return 'Admin Updated Succesfully';
+    updateAdmin(@Param('id') id:number, @Body() adminInfo:AdminForm){
+        return this.adminService.updateAdmin(id,adminInfo);
     }
 
     @Delete('/deleteadmin/:id')
-    deleteAdmin(){
-          return 'Admin is deleted';
+    deleteAdmin(@Param('id') id:number){
+          return this.adminService.deleteAdmin(id);
     }
 
     @Post('/imageupload')
@@ -87,13 +92,7 @@ export class AdminController
     @Get('/agent/:id')
     getAgentById(@Param('id') id: number): any {
 
-        const user = users.find((user) => user.id == id);
-
-        if (!user) {
-            throw new NotFoundException(`User with ID ${id} not found`);
-        }
-
-        return user;
+        return null;
     }
 
     @Put('/updateagent/:id')
@@ -118,13 +117,7 @@ export class AdminController
     @Get('/employee/:id')
     getEmployeeById(@Param('id') id: number): any {
 
-        const user = users.find((user) => user.id == id);
-
-        if (!user) {
-            throw new NotFoundException(`User with ID ${id} not found`);
-        }
-
-        return user;
+        return null;
     }
 
     @Put('/updateemployee/:id')
@@ -144,19 +137,13 @@ export class AdminController
 
     @Get('/contents')
     getAllContents() :any{
-        return users;
+        return null;
     }
 
     @Get('/content/:id')
     getContentById(@Param('id') id: number): any {
 
-        const user = users.find((user) => user.id == id);
-
-        if (!user) {
-            throw new NotFoundException(`User with ID ${id} not found`);
-        }
-
-        return user;
+        return null;
     }
 
     @Post('/content/create')
@@ -180,19 +167,13 @@ export class AdminController
 
     @Get('/packages')
     getAllPackages() :any{
-        return users;
+        return null;
     }
 
     @Get('/package/:id')
     getPackageById(@Param('id') id: number): any {
 
-        const user = users.find((user) => user.id == id);
-
-        if (!user) {
-            throw new NotFoundException(`User with ID ${id} not found`);
-        }
-
-        return user;
+        return null;
     }
 
     @Post('/package/create')
