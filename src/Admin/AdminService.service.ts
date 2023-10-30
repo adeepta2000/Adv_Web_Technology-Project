@@ -3,12 +3,15 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { AdminEntity } from "./Entities/AdminEntity.entity";
 import { Repository } from "typeorm";
 import { AdminForm } from "./DTOs/AdminForm.dto";
+import * as bcrypt from 'bcrypt';
+import { MailerService } from "@nestjs-modules/mailer/dist";
 
 @Injectable()
 export class AdminService{
     constructor(
         @InjectRepository(AdminEntity) 
-        private adminRepo: Repository<AdminEntity>
+        private adminRepo: Repository<AdminEntity>,
+        private mailerService: MailerService,
       ){}
 
       getAll(): Promise<AdminEntity[]>{
@@ -21,6 +24,9 @@ export class AdminService{
 
       async addAdmin(adminInfo: AdminForm): Promise<AdminEntity[]>{
 
+        const salt = await bcrypt.genSalt();
+        const hassedpassed = await bcrypt.hash(adminInfo.password, salt);
+        adminInfo.password= hassedpassed;
         const response = await this.adminRepo.save(adminInfo);
         return this.adminRepo.find();
 
@@ -36,4 +42,13 @@ export class AdminService{
       async deleteAdmin(id:number):Promise<void>{
         await this.adminRepo.delete(id); 
       }
+
+      async sendEmail(mydata){
+        return await this.mailerService.sendMail({
+          to: mydata.email,
+          subject: mydata.subject,
+          text: mydata.text
+        });
+      }
+
 }

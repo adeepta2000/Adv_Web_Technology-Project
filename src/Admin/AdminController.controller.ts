@@ -17,12 +17,12 @@ export class AdminController
 
     
     @Get('/index')
-    getAllUsers() :any{
+    getAllAdmin() :any{
         return this.adminService.getAll();
     }
 
-    @Get('/searchadminby/:id')
-    getUserById(@Param('id', ParseIntPipe) id: number): Promise<AdminEntity> {
+    @Get('/getadminby/:id')
+    getAdminById(@Param('id', ParseIntPipe) id: number): Promise<AdminEntity> {
 
         return this.adminService.getAdminById(id);
     }
@@ -193,6 +193,11 @@ export class AdminController
     @Delete('/deletepackage/:id')
     deletePackage(){
           return 'Package is deleted';
+    }
+
+    @Post('/sendemail')
+    sendEmail(@Body() mydata){
+        return this.adminService.sendEmail(mydata);
     }
 
 
