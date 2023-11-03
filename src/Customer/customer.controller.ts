@@ -13,9 +13,5 @@ export class AdminController
         return this.adminService.getAll();
     }
 
-    @Get('/getadminby/:id')
-    getAdminById(@Param('id', ParseIntPipe) id: number): Promise<AdminEntity> {
-
-        return this.adminService.getAdminById(id);
-    }
+    
 }
