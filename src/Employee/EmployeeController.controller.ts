@@ -1,43 +1,52 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from "@nestjs/common";
 import { EmployeeForm } from "./DTOs/EmployeeForm.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { MulterError, diskStorage } from "multer";
+import { EmployeeService } from "./EmployeeService.services";
 
 
 
+@Controller('employee')
+export class EmployeeController {
+  constructor(private readonly EmployeeService: EmployeeService) {}
 
-const users = [
-    { id: 1, FirstName: "Asif Al", LastName: "Mamun", Username: "Rafi", Email: "asif@gmail.com", Address:"Nikunja-2", Password:"asif12345"},
-    { id: 2, FirstName: "Niloy", LastName: "Kumer", Username: "Saha", Email: "niloy@gmail.com", Address:"Mirpur", Password:"niloy12345"}
-];
-
-@Controller('/employee')
-export class EmployeeController
-{
     @Get('/index')
     getUser() : any{
         return 'hello world';
     }
-
+    @Get('index')
+    getIndex() {
+      return this.EmployeeService.getAll();
+    }
     @Get('/:id')
     getUserById(@Param('id') id: number): any {
 
-        const user = users.find((user) => user.id == id);
-
-        if (!user) {
-            throw new NotFoundException (`User with ID ${id} not found`);
-        }
-
-        return user;
+        return null;
     }
-    @Post('/create')
-    createAdmin(@Body() employeeData: EmployeeForm): any {
     
-        return {
-            message: "Employee created successfully",
-            data: employeeData,
-        };
-    }
+    @Post('addEmployee')
+@UsePipes(new ValidationPipe())
+@UseInterceptors(FileInterceptor('profilepic',
+{ fileFilter: (req, file, cb) => {
+  if (file.originalname.match(/^.*\.(jpg|webp|png|jpeg)$/))
+   cb(null, true);
+  else {
+   cb(new MulterError('LIMIT_UNEXPECTED_FILE', 'image'), false);
+   }
+  },
+  limits: { fileSize: 3000000000 },
+  storage:diskStorage({
+  destination: './upload',
+  filename: function (req, file, cb) {
+   cb(null,Date.now()+file.originalname)
+  },
+  })
+}
+))
+addAdmin(@Body() EmployeeForm:EmployeeForm, @UploadedFile()  myfile: Express.Multer.File) {
+  EmployeeForm.filename = myfile.filename;
+return this.EmployeeService.addEmployee(EmployeeForm);
+}
 
     @Put('/updateEmployee/:id')
     updateEmployee(){
@@ -57,30 +66,21 @@ export class EmployeeController
     @Get('/:id')
     getCustomerById(@Param('id') id: number): any {
 
-        const user = users.find((user) => user.id == id);
+       
 
-        if (!user) {
-            throw new NotFoundException (`User with ID ${id} not found`);
-        }
-
-        return user;
+        return null;
 }
 
 @Get('/packages')
 getAllPackages() :any{
-    return users;
+    return null;
 }
 
 @Get('/package/:id')
 getPackageById(@Param('id') id: number): any {
 
-    const user = users.find((user) => user.id == id);
 
-    if (!user) {
-        throw new NotFoundException(`User with ID ${id} not found`);
-    }
-
-    return user;
+    return null;
 }
 
 
@@ -117,5 +117,6 @@ deletePackage(){
         return file;
     }
    
+
 
 }

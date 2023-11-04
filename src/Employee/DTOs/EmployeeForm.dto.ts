@@ -1,10 +1,11 @@
 export class EmployeeForm{
-    id:number;
-    FirstName: string;
-    LastName: string;
-    Username: string;
-    Email: string;
-    Address: string;
-    Password: string;
+    firstname: string;
+    lastname: string;
+    username: string;
+    email: string;
+    address: string;
+    password: string;
+    contact: string;
+    filename:string;
     
 }
