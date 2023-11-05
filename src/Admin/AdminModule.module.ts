@@ -15,7 +15,7 @@ imports:[MailerModule.forRoot({
     secure: true,
     auth: {
     user: 'adeepto04@gmail.com',
-    pass: 'app generated password'
+    pass: 'srrzsjdzsxdpffzd'
     },
     }}),TypeOrmModule.forFeature([AdminEntity])],
 controllers:[AdminController],

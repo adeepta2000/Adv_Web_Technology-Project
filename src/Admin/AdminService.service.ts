@@ -11,7 +11,7 @@ export class AdminService{
     constructor(
         @InjectRepository(AdminEntity) 
         private adminRepo: Repository<AdminEntity>,
-        private mailerService: MailerService,
+        private readonly mailerService: MailerService,
       ){}
 
       getAll(): Promise<AdminEntity[]>{
@@ -43,12 +43,20 @@ export class AdminService{
         await this.adminRepo.delete(id); 
       }
 
-      async sendEmail(mydata){
-        return await this.mailerService.sendMail({
-          to: mydata.email,
-          subject: mydata.subject,
-          text: mydata.text
-        });
+      async sendEmail(mydata) {
+        try {
+          const result = await this.mailerService.sendMail({
+            to: mydata.to,
+            subject: mydata.subject,
+            text: mydata.text
+          });
+
+          return {message: 'Email sent successfully'};
+
+        } catch (error) {
+      
+          return { message: 'Email could not be sent', error: error.message };
+        }
       }
 
 }

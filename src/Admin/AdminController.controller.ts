@@ -38,7 +38,7 @@ export class AdminController
     }},
     limits: { fileSize: 30000 },
     storage:diskStorage({
-        destination: './upload',
+        destination: './Uploaded_Image',
         filename: function (req, file, cb) {
             cb(null,Date.now()+file.originalname)
         },})
