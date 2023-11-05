@@ -13,8 +13,8 @@ import { MailerModule } from "@nestjs-modules/mailer";
         ignoreTLS: true,
         secure: true,
         auth: {
-        user: 'asifalmamun@gmail.com',
-        pass: 'app generated password'
+        user: 'aasifalmamunrafi@gmail.com',
+        pass: 'txye fdbf zwzo fdio'
         },
         }}),TypeOrmModule.forFeature([EmployeeEntity])],
     controllers:[EmployeeController],

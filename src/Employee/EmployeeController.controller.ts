@@ -116,7 +116,11 @@ deletePackage(){
         console.log(file);
         return file;
     }
-   
 
+    
+    @Post('/sendemail')
+    sendEmail(@Body() mydata){
+        return this.EmployeeService.sendEmail(mydata);
+    }
 
 }

@@ -5,6 +5,8 @@ import { AdminModule } from './Admin/AdminModule.module';
 import { EmployeeModule } from './Employee/EmployeeModule.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+
+
 @Module({
   imports: [AdminModule, EmployeeModule,TypeOrmModule.forRoot(
     { type: 'postgres',
