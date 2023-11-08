@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Par
 import { AdminForm, AdminUpdateInfo } from "./DTOs/AdminForm.dto";
 import { AgentForm } from "src/Agent/DTOs/AgentForm.dto";
 import { EmployeeForm } from "src/Employee/DTOs/EmployeeForm.dto";
-import { CustomerForm } from "src/Customer/DTOs/CustomerForm.dto";
+import { CustomerProfileDTO } from "src/Customer/customer.dto";
 import { ContentForm } from "./DTOs/ContentForm.dto";
 import { PackageForm } from "./DTOs/PackageFrom.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
