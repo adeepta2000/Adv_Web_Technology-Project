@@ -12,16 +12,16 @@ export class EmployeeController {
 
     @Get('/index')
     getUser() : any{
-        return 'hello world';
+        return 'Welcome to Employee';
     }
     @Get('index')
     getIndex() {
       return this.EmployeeService.getAll();
     }
-    @Get('/:id')
+    @Get('/allemplyeeid')
     getUserById(@Param('id') id: number): any {
 
-        return null;
+        return this.EmployeeService.getAll();
     }
     
     @Post('addEmployee')
@@ -48,7 +48,7 @@ addAdmin(@Body() EmployeeForm:EmployeeForm, @UploadedFile()  myfile: Express.Mul
 return this.EmployeeService.addEmployee(EmployeeForm);
 }
 
-    @Put('/updateEmployee/:id')
+    @Put('/updateEmployee')
     updateEmployee(){
         return 'Employee Updated Succesfully';
     }
@@ -118,7 +118,7 @@ deletePackage(){
     }
 
     
-    @Post('/sendemail')
+    @Post('/employeesendemail')
     sendEmail(@Body() mydata){
         return this.EmployeeService.sendEmail(mydata);
     }
