@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, ParseIntPipe, UsePipes, ValidationPipe, UseInterceptors, UploadedFile } from "@nestjs/common";
 import { AdminForm, AdminUpdateInfo } from "./DTOs/AdminForm.dto";
-import { AgentForm } from "src/Agent/DTOs/AgentForm.dto";
 import { EmployeeForm } from "src/Employee/DTOs/EmployeeForm.dto";
 import { CustomerForm } from "src/Customer/DTOs/CustomerForm.dto";
 import { ContentForm } from "./DTOs/ContentForm.dto";
@@ -9,6 +8,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { MulterError, diskStorage } from "multer";
 import { AdminService } from "./AdminService.service";
 import { AdminEntity } from "./Entities/AdminEntity.entity";
+import { agentDTO } from "src/Agent/agent.dto";
 
 @Controller('/admin')
 export class AdminController
@@ -80,14 +80,7 @@ export class AdminController
         return file;
     }
 
-    @Post('/agent/create')
-    createAgent(@Body() agentData: AgentForm): any {
-    
-        return {
-            message: "Admin created successfully",
-            data: agentData,
-        };
-    }
+t
 
     @Get('/agent/:id')
     getAgentById(@Param('id') id: number): any {
