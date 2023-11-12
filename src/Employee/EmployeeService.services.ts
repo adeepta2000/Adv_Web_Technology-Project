@@ -1,10 +1,13 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { EmployeeForm } from "./DTOs/EmployeeForm.dto";
 import { EmployeeEntity } from "./Entities/EmployeeEntity.entity";
 import { MailerService } from "@nestjs-modules/mailer/dist";
-
+import { HotelEntity } from "./Entities/HotelEntity.entity";
+import { TravelGuideEntity } from "./Entities/TravelGuideEnity.entity";
+import { PasswordUtils } from "./EmployeeUntils.ts/bcrypt";
+import * as bcrypt from 'bcrypt';
 
 
 @Injectable()
@@ -13,7 +16,13 @@ export class EmployeeService {
   constructor(
     @InjectRepository(EmployeeEntity) 
     private EmployeeRepo: Repository<EmployeeEntity>,
+    @InjectRepository(HotelEntity)
+    private HotelRepo:Repository<HotelEntity>,
+    @InjectRepository(TravelGuideEntity)  
+    private TravelGuideRepo:Repository<TravelGuideEntity>,
+    
     private readonly mailerService: MailerService,
+    
   )
   {}
   getAll(): Promise<EmployeeEntity[]> {
@@ -24,11 +33,18 @@ export class EmployeeService {
     return this.EmployeeRepo.findOneBy({id:id});
     }
 
-    async addEmployee(employeefrom:EmployeeForm):Promise<EmployeeEntity[]>
-    {
-     const res = await this.EmployeeRepo.save(employeefrom);
-     return this.EmployeeRepo.find();
+
+    //CREATE NEW Employee
+    async addEmployee(employeeForm: EmployeeForm): Promise<EmployeeEntity[]>{
+
+      const salt = await bcrypt.genSalt();
+      const hassedpassed = await bcrypt.hash(employeeForm.password, salt);
+      employeeForm.password= hassedpassed;
+      const response = await this.EmployeeRepo.save(employeeForm);
+      return this.EmployeeRepo.find();
+
     }
+
 
     updateEmployee(id:number, employeefrom:EmployeeForm):Promise<EmployeeEntity>
     {
@@ -41,7 +57,26 @@ export class EmployeeService {
       await this.EmployeeRepo.delete(id); 
     }
 
-    
+    //Login using EmployeeForm
+async login(credentials: EmployeeForm): Promise<boolean> {
+  const employee = await this.EmployeeRepo.findOne({ where: { username: credentials.username } });
+
+  if (!employee) {
+    throw new UnauthorizedException('Employee not found');
+  }
+
+  // Use your preferred method to compare the hashed password
+  const passwordMatch = await PasswordUtils.comparePassword(credentials.password, employee.password);
+
+  if (!passwordMatch) {
+    throw new UnauthorizedException('Invalid password');
+  }
+
+  return true;
+}
+
+
+  
     async sendEmail(mydata) {
       try {
         const result = await this.mailerService.sendMail({

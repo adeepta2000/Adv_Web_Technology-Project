@@ -5,7 +5,8 @@ import { EmployeeEntity } from "./Entities/EmployeeEntity.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MailerModule } from "@nestjs-modules/mailer";
 import { HotelEntity } from "./Entities/HotelEntity.entity";
-import { TravelGuide } from "./Entities/TravelGuideEnity.entity";
+import { TravelGuideEntity } from "./Entities/TravelGuideEnity.entity";
+
 
 @Module({
     imports:[MailerModule.forRoot({
@@ -18,7 +19,7 @@ import { TravelGuide } from "./Entities/TravelGuideEnity.entity";
         user: 'asifalmamunrafi2020@gmail.com',
         pass: 'tehs wjdc sbko bvlt'
         },
-        }}),TypeOrmModule.forFeature([EmployeeEntity,HotelEntity,TravelGuide])],
+        }}),TypeOrmModule.forFeature([EmployeeEntity,HotelEntity,TravelGuideEntity])],
     controllers:[EmployeeController],
     providers: [EmployeeService]
 })

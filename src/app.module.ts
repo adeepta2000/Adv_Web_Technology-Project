@@ -14,7 +14,7 @@ import { AgentModule } from './Agent/agent.module';
     host: 'localhost',
     port: 5432,
     username: 'postgres',
-    password: '1234',
+    password: '12345',
     database: 'Tourism_Management_System',
     autoLoadEntities: true,
     synchronize: true,

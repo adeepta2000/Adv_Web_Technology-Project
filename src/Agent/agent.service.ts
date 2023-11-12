@@ -12,6 +12,7 @@ export class agentService {
     throw new Error('Method not implemented.');
   
   }
+  
   find(): agentEntity[] | PromiseLike<agentEntity[]> {
     throw new Error('Method not implemented.');
   }
