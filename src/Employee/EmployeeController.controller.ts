@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Session, UnauthorizedException, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from "@nestjs/common";
 import { EmployeeForm } from "./DTOs/EmployeeForm.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { MulterError, diskStorage } from "multer";
 import { EmployeeService } from "./EmployeeService.services";
+import { EmployeeEntity } from "./Entities/EmployeeEntity.entity";
 
 
 
@@ -13,9 +14,11 @@ export class EmployeeController {
     @Get('/index')
     getUser() : any{
         return 'Welcome to Employee';
+
+    
     }
-    @Get('index')
-    getIndex() {
+    @Get('all')
+    getIndex(@Session() session) {
       return this.EmployeeService.getAll();
     }
     @Get('/allemplyeeid')
@@ -24,7 +27,9 @@ export class EmployeeController {
         return this.EmployeeService.getAll();
     }
     
-    @Post('addEmployee')
+   
+//CREATE NEW Employee
+@Post('addEmployee')
 @UsePipes(new ValidationPipe())
 @UseInterceptors(FileInterceptor('profilepic',
 { fileFilter: (req, file, cb) => {
@@ -43,7 +48,7 @@ export class EmployeeController {
   })
 }
 ))
-addAdmin(@Body() EmployeeForm:EmployeeForm, @UploadedFile()  myfile: Express.Multer.File) {
+addEmployee(@Body() EmployeeForm:EmployeeForm, @UploadedFile()  myfile: Express.Multer.File) {
   EmployeeForm.filename = myfile.filename;
 return this.EmployeeService.addEmployee(EmployeeForm);
 }
@@ -58,41 +63,20 @@ return this.EmployeeService.addEmployee(EmployeeForm);
           return 'Employee is deleted';
     }
 
-    @Get('/Customerdetails')
-    getCustomer() : any{
-        return 'Welcome to Customerdetails';
+
+    @Post('loginEmployee')
+async login(@Body() credentials: EmployeeForm, @Session() session) {
+  try {
+    if (await this.EmployeeService.login(credentials)) {
+      session.username = credentials.username; // Set the username in the session
+      return { message: 'Login successful' };
     }
-
-    @Get('/:id')
-    getCustomerById(@Param('id') id: number): any {
-
-       
-
-        return null;
-}
-
-@Get('/packages')
-getAllPackages() :any{
-    return null;
-}
-
-@Get('/package/:id')
-getPackageById(@Param('id') id: number): any {
-
-
-    return null;
+  } catch (error) {
+    throw new UnauthorizedException('Invalid login credentials');
+  }
 }
 
 
-@Put('/updatepackage/:id')
-updatePackage(){
-    return 'Package Updated Succesfully';
-}
-
-@Delete('/deletepackage/:id')
-deletePackage(){
-      return 'Package is deleted';
-}
 
 
 @Post('/imageupload')
@@ -124,3 +108,5 @@ deletePackage(){
     }
 
 }
+
+

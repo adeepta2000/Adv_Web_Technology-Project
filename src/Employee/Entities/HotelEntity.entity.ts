@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+
 
 @Entity("hotel")
 export class HotelEntity{
@@ -19,5 +20,6 @@ export class HotelEntity{
         address : string;
         @Column()
         Description : string;
-        
+
+
         }

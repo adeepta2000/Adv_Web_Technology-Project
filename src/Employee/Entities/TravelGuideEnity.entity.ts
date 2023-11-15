@@ -1,7 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+
+
 
 @Entity("travelguide")
-export class TravelGuide{
+export class TravelGuideEntity{
     @PrimaryGeneratedColumn()
     ID: number;
     @Column()
@@ -22,4 +24,6 @@ export class TravelGuide{
     PackageName : string;
     @Column()
     Price : string;
+
+    
 }

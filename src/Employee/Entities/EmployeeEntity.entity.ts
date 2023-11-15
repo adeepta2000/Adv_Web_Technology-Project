@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, OneToMany, OneToOne } from "typeorm";
+
 
 @Entity("employee")
 export class EmployeeEntity{
@@ -20,4 +21,7 @@ address : string;
 contact : string;
 @Column()
 filename:string;
+
+
+
 }
