@@ -37,6 +37,10 @@ export class EmployeeService {
        return this.EmployeeRepo.findOneBy({id});
     }
 
+    async deleteEmployee(id:number):Promise<void>{
+      await this.EmployeeRepo.delete(id); 
+    }
+
     
     async sendEmail(mydata) {
       try {

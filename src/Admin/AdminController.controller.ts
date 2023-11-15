@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, ParseIntPipe, UsePipes, ValidationPipe, UseInterceptors, UploadedFile, Session, HttpException, HttpStatus, UnauthorizedException, UseGuards, Res } from "@nestjs/common";
 import { AdminForm } from "./DTOs/AdminForm.dto";
-import { AgentForm } from "src/Agent/DTOs/AgentForm.dto";
 import { EmployeeForm } from "src/Employee/DTOs/EmployeeForm.dto";
 import { CustomerForm } from "src/Customer/DTOs/CustomerForm.dto";
 import { ContentForm } from "./DTOs/ContentForm.dto";
@@ -201,14 +200,7 @@ export class AdminController
     }
 
 
-    @Post('/agent/create')
-    createAgent(@Body() agentData: AgentForm): any {
-    
-        return {
-            message: "Admin created successfully",
-            data: agentData,
-        };
-    }
+t
 
     @Get('/agent/:id')
     getAgentById(@Param('id') id: number): any {

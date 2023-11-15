@@ -4,6 +4,8 @@ import { EmployeeService } from "./EmployeeService.services";
 import { EmployeeEntity } from "./Entities/EmployeeEntity.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { MailerModule } from "@nestjs-modules/mailer";
+import { HotelEntity } from "./Entities/HotelEntity.entity";
+import { TravelGuide } from "./Entities/TravelGuideEnity.entity";
 
 @Module({
     imports:[MailerModule.forRoot({
@@ -13,10 +15,10 @@ import { MailerModule } from "@nestjs-modules/mailer";
         ignoreTLS: true,
         secure: true,
         auth: {
-        user: 'aasifalmamunrafi@gmail.com',
-        pass: 'txye fdbf zwzo fdio'
+        user: 'asifalmamunrafi2020@gmail.com',
+        pass: 'tehs wjdc sbko bvlt'
         },
-        }}),TypeOrmModule.forFeature([EmployeeEntity])],
+        }}),TypeOrmModule.forFeature([EmployeeEntity,HotelEntity,TravelGuide])],
     controllers:[EmployeeController],
     providers: [EmployeeService]
 })
