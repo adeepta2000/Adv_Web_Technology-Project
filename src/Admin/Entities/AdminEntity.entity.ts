@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ContentEntity } from "./ContentEntity.entity";
 
 @Entity("admin")
 export class AdminEntity {
@@ -26,5 +27,8 @@ password: string;
 
 @Column()
 filename: string;
+
+@OneToMany (() => ContentEntity , content => content.admin, { cascade: true })
+contents : ContentEntity[];
 
 }

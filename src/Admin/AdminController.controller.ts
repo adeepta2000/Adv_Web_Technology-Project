@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, ParseIntPipe, UsePipes, ValidationPipe, UseInterceptors, UploadedFile } from "@nestjs/common";
-import { AdminForm, AdminUpdateInfo } from "./DTOs/AdminForm.dto";
+import { Body, Controller, Delete, Get, Param, Post, Put, ParseIntPipe, UsePipes, ValidationPipe, UseInterceptors, UploadedFile, Session, HttpException, HttpStatus, UnauthorizedException, UseGuards, Res } from "@nestjs/common";
+import { AdminForm } from "./DTOs/AdminForm.dto";
 import { AgentForm } from "src/Agent/DTOs/AgentForm.dto";
 import { EmployeeForm } from "src/Employee/DTOs/EmployeeForm.dto";
 import { CustomerForm } from "src/Customer/DTOs/CustomerForm.dto";
@@ -9,14 +9,73 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { MulterError, diskStorage } from "multer";
 import { AdminService } from "./AdminService.service";
 import { AdminEntity } from "./Entities/AdminEntity.entity";
+import { SessionGuard } from "./Session.guard";
+import { ContentEntity } from "./Entities/ContentEntity.entity";
+import { PackageEntity } from "./Entities/PackageEntity.entity";
 
 @Controller('/admin')
 export class AdminController
 {
     constructor(private readonly adminService: AdminService) {}
 
+    @Post('/signin')
+    async signin(@Session() session, @Body() mydto:AdminForm)
+    {
+        try {
+            const result = await this.adminService.signin(mydto);
+        
+            if (result === 1) {
+              session.email = mydto.email;
+              console.log(session.email);
+
+              return { message: "User Login Successful." };
+
+            } 
+            else {
+
+              return { message: "Invalid email or password." };
+
+            }
+          } catch (error) {
+            throw new HttpException(
+              {
+                status: HttpStatus.BAD_REQUEST,
+                error: 'An error occurred during sign-in.',
+              },
+              HttpStatus.BAD_REQUEST,
+            );
+          }
+    }
     
+    @Get('/signout')
+    signout(@Session() session) {
+        try {
+            if (session != null) {
+                
+                if (session.destroy()) {
+                    return { message: "You are logged out." };
+                } 
+                else {
+                    throw new UnauthorizedException("You are not authorized to sign-out.");
+                }
+            } 
+            else {
+                console.log('No session found');
+                return { message: "You are already logged out." };
+            }
+        } catch (error) {
+            console.error('Error during sign-out:', error);
+            throw new HttpException({
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                error: 'An error occurred during sign-out.',
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
     @Get('/index')
+    @UseGuards(SessionGuard)
     getAllAdmin() :any{
         return this.adminService.getAll();
     }
@@ -80,6 +139,68 @@ export class AdminController
         return file;
     }
 
+    @Get('/contents')
+    getAllContents() :any{
+        return this.adminService.getAllContent();
+    }
+
+    @Get('/content/:id')
+    getContentById(@Param('id', ParseIntPipe) id: number): Promise<ContentEntity> {
+
+        return this.adminService.getContentById(id);
+    }
+
+    @Post('/content/create')
+    createContent(@Body() contentData: ContentForm) {
+    
+        return this.adminService.addContent(contentData);
+    }
+
+    @Put('/updatecontent/:id')
+    updateContent(@Param('id') id:number, @Body() contentData:ContentForm){
+
+        return this.adminService.updateContent(id,contentData);
+    }
+
+    @Delete('/deletecontent/:id')
+    deleteContent(@Param('id') id:number){
+
+        return this.adminService.deleteContent(id);
+    }
+
+    @Get('/packages')
+    getAllPackages() :any{
+        return this.adminService.getAllPackage();
+    }
+
+    @Get('/package/:id')
+    getPackageById(@Param('id', ParseIntPipe) id: number): Promise<PackageEntity> {
+
+        return this.adminService.getPackageById(id);
+    }
+
+    @Post('/package/create')
+    createPackage(@Body() packageData: PackageForm) {
+    
+        return this.adminService.addPackage(packageData);
+    }
+
+    @Put('/updatepackage/:id')
+    updatePackage(@Param('id') id:number, @Body() packageData: PackageForm){
+        return this.adminService.updatePackage(id, packageData);
+    }
+
+    @Delete('/deletepackage/:id')
+    deletePackage(@Param('id') id:number){
+        return this.adminService.deletePackage(id);
+    }
+
+    @Post('/sendemail')
+    sendEmail(@Body() mydata){
+        return this.adminService.sendEmail(mydata);
+    }
+
+
     @Post('/agent/create')
     createAgent(@Body() agentData: AgentForm): any {
     
@@ -133,74 +254,6 @@ export class AdminController
     @Delete('/deletecustomer/:id')
     deleteCustomer(){
           return 'Customer is deleted';
-    }
-
-    @Get('/contents')
-    getAllContents() :any{
-        return null;
-    }
-
-    @Get('/content/:id')
-    getContentById(@Param('id') id: number): any {
-
-        return null;
-    }
-
-    @Post('/content/create')
-    createContent(@Body() adminData: AdminForm): any {
-    
-        return {
-            message: "Admin created successfully",
-            data: adminData,
-        };
-    }
-
-    @Put('/updatecontent/:id')
-    updateContent(){
-        return 'Content Updated Succesfully';
-    }
-
-    @Delete('/deletecontent/:id')
-    deleteContent(){
-          return 'Content is deleted';
-    }
-
-    @Get('/packages')
-    getAllPackages() :any{
-        return null;
-    }
-
-    @Get('/package/:id')
-    getPackageById(@Param('id') id: number): any {
-
-        return null;
-    }
-
-    @Post('/package/create')
-    createPackage(@Body() adminData: AdminForm): any {
-    
-        return {
-            message: "Package created successfully",
-            data: adminData,
-        };
-    }
-
-    @Put('/updatepackage/:id')
-    updatePackage(){
-        return 'Package Updated Succesfully';
-    }
-
-    @Delete('/deletepackage/:id')
-    deletePackage(){
-          return 'Package is deleted';
-    }
-
-    @Post('/sendemail')
-    sendEmail(@Body() mydata){
-        return this.adminService.sendEmail(mydata);
-    }
-
-
-    
+    }  
 
 }

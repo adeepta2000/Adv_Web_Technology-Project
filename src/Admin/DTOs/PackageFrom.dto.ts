@@ -1,8 +1,8 @@
-export class PackageForm{
+export class PackageForm {
     id:number;
     name:string;
     description:string;
-    price:number;
-    discount:number;
+    price:string;
+    discount:string;
     duration:string;
 }
