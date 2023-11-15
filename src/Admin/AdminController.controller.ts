@@ -200,7 +200,14 @@ export class AdminController
     }
 
 
-t
+    @Post('/agent/create')
+    createAgent(@Body() agentData: AdminForm): any {
+    
+        return {
+            message: "Admin created successfully",
+            data: agentData,
+        };
+    }
 
     @Get('/agent/:id')
     getAgentById(@Param('id') id: number): any {
