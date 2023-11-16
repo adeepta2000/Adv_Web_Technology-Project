@@ -15,7 +15,9 @@ export class AdminService{
     constructor(
         @InjectRepository(AdminEntity) 
         private adminRepo: Repository<AdminEntity>,
+        @InjectRepository(ContentEntity) 
         private contentRepo: Repository<ContentEntity>,
+        @InjectRepository(PackageEntity) 
         private packageRepo: Repository<PackageEntity>,
         private readonly mailerService: MailerService,
       ){}
