@@ -29,7 +29,7 @@ export class EmployeeService {
     return this.EmployeeRepo.find()
   }
 
-  getUserByID(id:number): Promise<EmployeeEntity> {
+  getEmployeeByID(id:number): Promise<EmployeeEntity> {
     return this.EmployeeRepo.findOneBy({id:id});
     }
 

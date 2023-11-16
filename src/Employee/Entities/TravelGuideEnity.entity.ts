@@ -1,4 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { EmployeeEntity } from "./EmployeeEntity.entity";
+
 
 
 
@@ -25,5 +27,7 @@ export class TravelGuideEntity{
     @Column()
     Price : string;
 
-    
+    @ManyToOne(() => EmployeeEntity, employee => employee.travelGuides)
+    @JoinColumn({ name: "GuideID" }) 
+    guide: EmployeeEntity;
 }

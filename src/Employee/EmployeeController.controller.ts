@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Session, UnauthorizedException, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Session, UnauthorizedException, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from "@nestjs/common";
 import { EmployeeForm } from "./DTOs/EmployeeForm.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { MulterError, diskStorage } from "multer";
@@ -12,7 +12,7 @@ export class EmployeeController {
   constructor(private readonly EmployeeService: EmployeeService) {}
 
     @Get('/index')
-    getUser() : any{
+    getEmployee() : any{
         return 'Welcome to Employee';
 
     
@@ -21,12 +21,14 @@ export class EmployeeController {
     getIndex(@Session() session) {
       return this.EmployeeService.getAll();
     }
-    @Get('/allemplyeeid')
-    getUserById(@Param('id') id: number): any {
+ 
+    @Get('/getadminby/:id')
+    getEmployeeById(@Param('id', ParseIntPipe) id: number): Promise<EmployeeEntity> {
 
-        return this.EmployeeService.getAll();
+        return this.EmployeeService.getEmployeeByID(id);
     }
-    
+
+
    
 //CREATE NEW Employee
 @Post('addEmployee')
@@ -53,15 +55,22 @@ addEmployee(@Body() EmployeeForm:EmployeeForm, @UploadedFile()  myfile: Express.
 return this.EmployeeService.addEmployee(EmployeeForm);
 }
 
-    @Put('/updateEmployee')
-    updateEmployee(){
-        return 'Employee Updated Succesfully';
-    }
 
-    @Delete('/deleteEmployee/:id')
-    deleteEmployee(){
-          return 'Employee is deleted';
-    }
+@Put('/updateEmployee/:id')
+@UsePipes(new ValidationPipe())
+updateEmployee(@Param('id') id: number, @Body() employeeEntity: EmployeeEntity) {
+  return this.EmployeeService.updateEmployee(id, employeeEntity);
+}
+
+
+
+
+@Delete('/deleteEmployee/:id')
+deleteEmployee(@Param('id') id:number){
+      return this.EmployeeService.deleteEmployee(id);
+}
+
+
 
 
     @Post('loginEmployee')
@@ -100,6 +109,8 @@ async login(@Body() credentials: EmployeeForm, @Session() session) {
         console.log(file);
         return file;
     }
+
+
 
     
     @Post('/employeesendemail')

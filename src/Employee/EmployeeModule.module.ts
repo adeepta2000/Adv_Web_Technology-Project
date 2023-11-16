@@ -8,6 +8,7 @@ import { HotelEntity } from "./Entities/HotelEntity.entity";
 import { TravelGuideEntity } from "./Entities/TravelGuideEnity.entity";
 
 
+
 @Module({
     imports:[MailerModule.forRoot({
         transport: {
