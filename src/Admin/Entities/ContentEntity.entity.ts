@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { AdminEntity } from "./AdminEntity.entity";
+import { DestinationEntity } from "./DestinationEntity.entity";
 
 @Entity("content")
 export class ContentEntity {
@@ -17,7 +18,10 @@ export class ContentEntity {
     createdAt:Date;
 
     @ManyToOne(() => AdminEntity, admin => admin.contents)
-    admin : AdminEntity
+    admin : AdminEntity;
+
+    @ManyToOne(() => DestinationEntity, destination => destination.contents, { nullable: true })
+    destination: DestinationEntity;
 
 
 }

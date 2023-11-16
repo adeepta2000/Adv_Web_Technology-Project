@@ -9,17 +9,25 @@ import { ContentEntity } from "./Entities/ContentEntity.entity";
 import { ContentForm } from "./DTOs/ContentForm.dto";
 import { PackageEntity } from "./Entities/PackageEntity.entity";
 import { PackageForm } from "./DTOs/PackageFrom.dto";
+import { DestinationEntity } from "./Entities/DestinationEntity.entity";
+import { DestinationForm } from "./DTOs/DestinationForm.dto";
 
 @Injectable()
 export class AdminService{
     constructor(
-        @InjectRepository(AdminEntity) 
+        @InjectRepository(AdminEntity)  
         private adminRepo: Repository<AdminEntity>,
-        @InjectRepository(ContentEntity) 
+        private readonly mailerService: MailerService,
+
+        @InjectRepository(ContentEntity)
         private contentRepo: Repository<ContentEntity>,
+
         @InjectRepository(PackageEntity) 
         private packageRepo: Repository<PackageEntity>,
-        private readonly mailerService: MailerService,
+
+        @InjectRepository(DestinationEntity)
+        private destinationRepo: Repository<DestinationEntity>
+
       ){}
 
       async getAll(): Promise<AdminEntity[]>{
@@ -35,14 +43,17 @@ export class AdminService{
         const salt = await bcrypt.genSalt();
         const hassedpassed = await bcrypt.hash(adminInfo.password, salt);
         adminInfo.password= hassedpassed;
-        const response = await this.adminRepo.save(adminInfo);
+        await this.adminRepo.save(adminInfo);
         return this.adminRepo.find();
 
       }
 
       async updateAdmin(id:number, adminInfo:AdminForm): Promise<AdminEntity>{
 
-        const response = this.adminRepo.update(id,adminInfo);
+        const salt = await bcrypt.genSalt();
+        const hassedpassed = await bcrypt.hash(adminInfo.password, salt);
+        adminInfo.password= hassedpassed;
+        await this.adminRepo.update(id,adminInfo);
         return this.adminRepo.findOneBy({id});
 
       }
@@ -53,7 +64,7 @@ export class AdminService{
 
       async sendEmail(mydata) {
         try {
-          const result = await this.mailerService.sendMail({
+          await this.mailerService.sendMail({
             to: mydata.to,
             subject: mydata.subject,
             text: mydata.text
@@ -91,12 +102,18 @@ export class AdminService{
 
       async addContent(contentData: ContentForm): Promise<ContentEntity[]>{
         
+        contentData.createdAt = new Date();
+        contentData.createdAt.setHours(0, 0, 0, 0);
+
         await this.contentRepo.save(contentData);
         return this.contentRepo.find();
 
       }
 
       async updateContent(id:number, contentData: ContentForm): Promise<ContentEntity>{
+
+        contentData.createdAt = new Date();
+        contentData.createdAt.setHours(0, 0, 0, 0);
 
         await this.contentRepo.update(id,contentData);
         return this.contentRepo.findOneBy({id});
@@ -132,5 +149,102 @@ export class AdminService{
       async deletePackage(id:number):Promise<void>{
         await this.packageRepo.delete(id); 
       }
+
+      async getAllDestination(): Promise<DestinationEntity[]>{
+        return this.destinationRepo.find();
+      }
+
+      async getDestinationById(id:number): Promise<DestinationEntity>{
+        return this.destinationRepo.findOneBy({id:id});
+      }
+
+      async addDestination(data: DestinationForm): Promise<DestinationEntity[]>{
+        
+        await this.destinationRepo.save(data);
+        return this.destinationRepo.find();
+
+      }
+
+      async updateDestination(id:number, data: DestinationForm): Promise<DestinationEntity>{
+
+        await this.destinationRepo.update(id,data);
+        return this.destinationRepo.findOneBy({id});
+
+      }
+
+      async deleteDestination(id:number):Promise<void>{
+        await this.destinationRepo.delete(id); 
+      }
+
+      async getAdminByContentId(id): Promise<any> 
+      {
+        return this.contentRepo.find({ 
+          where: {id:id},
+          relations: {
+            admin: true,
+            },
+         });
+
+        // const content = await this.contentRepo.findOne({
+        //   where: { id: id },
+        //   relations: ['admin'],
+        // });
+
+        // if (content && content.admin) {
+        //   const { id, title, description, createdAt } = content;
+        //   const { firstName, lastName } = content.admin;
+      
+        //   return {
+        //     content: { id, title, description, createdAt },
+        //     admin: { firstName, lastName },
+        //   };
+        // } else {
+        //   return null;
+        // }
+        }
+      
+      async getContentsByAdminId(id): Promise<any> 
+      {
+        return this.adminRepo.find({ 
+          select: {
+            firstName: true,
+            lastName: true,
+            },
+          where: {id:id},
+          relations: {
+              contents: true,
+            },
+        });
+        }
+      
+      async getPackageByDestinationId(id): Promise<any> 
+      {
+        return this.destinationRepo.find({ 
+          where: {id:id},
+          relations: {
+            package: true,
+            },
+          });
+        }
+      
+      async getContentByDestinationId(id): Promise<any> 
+      {
+        return this.destinationRepo.find({ 
+          where: {id:id},
+          relations: {
+            contents: true,
+            },
+          });
+        }
+      
+      async index(): Promise<any> 
+      {
+        return this.destinationRepo.find({ 
+          relations: {
+            package: true,
+            contents: true,
+            },
+          });
+        }
 
 }
