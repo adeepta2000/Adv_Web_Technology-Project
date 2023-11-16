@@ -1,7 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, ParseIntPipe, UsePipes, ValidationPipe, UseInterceptors, UploadedFile, Session, HttpException, HttpStatus, UnauthorizedException, UseGuards, Res } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, ParseIntPipe, UsePipes, ValidationPipe, UseInterceptors, UploadedFile, Session, HttpException, HttpStatus, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { AdminForm } from "./DTOs/AdminForm.dto";
 import { EmployeeForm } from "src/Employee/DTOs/EmployeeForm.dto";
-import { CustomerForm } from "src/Customer/DTOs/CustomerForm.dto";
 import { ContentForm } from "./DTOs/ContentForm.dto";
 import { PackageForm } from "./DTOs/PackageFrom.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -11,6 +10,8 @@ import { AdminEntity } from "./Entities/AdminEntity.entity";
 import { SessionGuard } from "./Session.guard";
 import { ContentEntity } from "./Entities/ContentEntity.entity";
 import { PackageEntity } from "./Entities/PackageEntity.entity";
+import { DestinationEntity } from "./Entities/DestinationEntity.entity";
+import { DestinationForm } from "./DTOs/DestinationForm.dto";
 
 @Controller('/admin')
 export class AdminController
@@ -59,11 +60,9 @@ export class AdminController
                 }
             } 
             else {
-                console.log('No session found');
                 return { message: "You are already logged out." };
             }
         } catch (error) {
-            console.error('Error during sign-out:', error);
             throw new HttpException({
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 error: 'An error occurred during sign-out.',
@@ -74,15 +73,48 @@ export class AdminController
     }
 
     @Get('/index')
-    @UseGuards(SessionGuard)
-    getAllAdmin() :any{
-        return this.adminService.getAll();
+    async index() : Promise<any>{
+        try{
+            const result = await this.adminService.index();
+            return { message: "Response Found Successfully.", result};
+        }catch(error){
+            throw new HttpException({
+                status: HttpStatus.NOT_FOUND,
+                error: 'No admin list found.'
+            },
+            HttpStatus.NOT_FOUND,
+            );
+        }
+    }
+
+    @Get('/adminlist')
+    async getAllAdmin() : Promise<any>{
+        try{
+            const result = await this.adminService.getAll();
+            return {message:"Admin list retrieve successfully.", result};
+        }catch(error){
+            throw new HttpException({
+                status: HttpStatus.NOT_FOUND,
+                error: 'No admin list found.'
+            },
+            HttpStatus.NOT_FOUND,
+            );
+        }
     }
 
     @Get('/getadminby/:id')
-    getAdminById(@Param('id', ParseIntPipe) id: number): Promise<AdminEntity> {
-
-        return this.adminService.getAdminById(id);
+    async getAdminById(@Param('id', ParseIntPipe) id: number): Promise<any> {
+        try{
+            const result = await this.adminService.getAdminById(id);
+            return {message: "Admin found successfully.", result}
+        }catch(error){
+            throw new HttpException({
+                status: HttpStatus.NOT_FOUND,
+                error: 'No admin found.'
+            },
+            HttpStatus.NOT_FOUND,
+            );
+        }
     }
 
     @Post('/createadmin')
@@ -101,19 +133,58 @@ export class AdminController
             cb(null,Date.now()+file.originalname)
         },})
     }))
-    addAdmin(@Body() adminInfo:AdminForm, @UploadedFile()  myfile: Express.Multer.File) {
+    async addAdmin(@Body() adminInfo:AdminForm, @UploadedFile()  myfile: Express.Multer.File) {
         adminInfo.filename = myfile.filename;
-        return this.adminService.addAdmin(adminInfo);
+        try {
+            const result = await this.adminService.addAdmin(adminInfo);
+            return { message: "Admin created Successfully", result };
+          } catch (error) {
+            throw new HttpException(
+                {
+                  status: HttpStatus.BAD_REQUEST,
+                  error: 'Failed to create admin.',
+                },
+                HttpStatus.BAD_REQUEST,
+              );
+          }
     }
 
     @Put('/updateadmin/:id')
-    updateAdmin(@Param('id') id:number, @Body() adminInfo:AdminForm){
-        return this.adminService.updateAdmin(id,adminInfo);
+    @UseGuards(SessionGuard)
+    @UsePipes(new ValidationPipe())
+    async updateAdmin(@Param('id') id:number, @Body() adminInfo:AdminForm){
+        try{
+            const result = await this.adminService.updateAdmin(id,adminInfo);
+            return  { message: "Admin updated Successfully", result};
+        }catch (error) {
+            throw new HttpException(
+                {
+                  status: HttpStatus.FORBIDDEN,
+                  error: 'Failed to update admin.',
+                },
+                HttpStatus.FORBIDDEN,
+              );
+          }
+        
     }
 
     @Delete('/deleteadmin/:id')
     deleteAdmin(@Param('id') id:number){
-          return this.adminService.deleteAdmin(id);
+        try{
+        const result = this.adminService.deleteAdmin(id);
+        if (result) {
+            return { message: `Admin with ID ${id} deleted successfully.` };
+        } else {
+            return { message: `Admin with ID ${id} not found.` };
+        }}catch (error) {
+            throw new HttpException(
+                {
+                  status: HttpStatus.BAD_REQUEST,
+                  error: 'Failed to delete admin.',
+                },
+                HttpStatus.BAD_REQUEST,
+              );
+          }
     }
 
     @Post('/imageupload')
@@ -139,23 +210,55 @@ export class AdminController
     }
 
     @Get('/contents')
-    getAllContents() :any{
-        return this.adminService.getAllContent();
+    async getAllContents() : Promise<any>{
+        try{
+            const result = await this.adminService.getAllContent();
+            return {message: "Here is the content list", result};
+        }catch(error){
+            throw new HttpException({
+                status: HttpStatus.NOT_FOUND,
+                error: 'No content list found.'
+            },
+            HttpStatus.NOT_FOUND,
+            );
+        }
     }
 
     @Get('/content/:id')
-    getContentById(@Param('id', ParseIntPipe) id: number): Promise<ContentEntity> {
-
-        return this.adminService.getContentById(id);
+    async getContentById(@Param('id', ParseIntPipe) id: number): Promise<any> {
+        try{
+            const result = await this.adminService.getContentById(id);
+            return {message: "Here is the content.", result};
+        }catch(error){
+            throw new HttpException({
+                status: HttpStatus.NOT_FOUND,
+                error: 'No content found.'
+            },
+            HttpStatus.NOT_FOUND,
+            );
+        }
+ 
     }
 
     @Post('/content/create')
-    createContent(@Body() contentData: ContentForm) {
-    
-        return this.adminService.addContent(contentData);
+    @UseGuards(SessionGuard)
+    async createContent(@Body() contentData: ContentForm) {
+        try{
+            const result = await this.adminService.addContent(contentData);
+            return { message: "Content created Successfully", result };
+        } catch (error) {
+          throw new HttpException(
+              {
+                status: HttpStatus.FORBIDDEN,
+                error: 'Failed to create admin.',
+              },
+              HttpStatus.FORBIDDEN,
+            );
+        }
     }
 
     @Put('/updatecontent/:id')
+    @UseGuards(SessionGuard)
     updateContent(@Param('id') id:number, @Body() contentData:ContentForm){
 
         return this.adminService.updateContent(id,contentData);
@@ -163,8 +266,15 @@ export class AdminController
 
     @Delete('/deletecontent/:id')
     deleteContent(@Param('id') id:number){
-
-        return this.adminService.deleteContent(id);
+        const result = this.adminService.deleteContent(id);
+    
+    if (result) {
+      return { message: `Content with ID ${id} deleted successfully.` };
+    } else {
+      
+      return { message: `Content with ID ${id} not found.` };
+    }
+ 
     }
 
     @Get('/packages')
@@ -179,24 +289,129 @@ export class AdminController
     }
 
     @Post('/package/create')
+    @UseGuards(SessionGuard)
     createPackage(@Body() packageData: PackageForm) {
     
         return this.adminService.addPackage(packageData);
     }
 
     @Put('/updatepackage/:id')
+    @UseGuards(SessionGuard)
     updatePackage(@Param('id') id:number, @Body() packageData: PackageForm){
         return this.adminService.updatePackage(id, packageData);
     }
 
     @Delete('/deletepackage/:id')
     deletePackage(@Param('id') id:number){
-        return this.adminService.deletePackage(id);
+        const result = this.adminService.deletePackage(id);
+    
+    if (result) {
+      return { message: `Package with ID ${id} deleted successfully.` };
+    } else {
+      
+      return { message: `Package with ID ${id} not found.` };
+    } 
+    }
+
+    @Get('/destinations')
+    getAllDestination() :any{
+        return this.adminService.getAllDestination();
+    }
+
+    @Get('/getdestinationby/:id')
+    getDestinationById(@Param('id', ParseIntPipe) id: number): Promise<DestinationEntity> {
+
+        return this.adminService.getDestinationById(id);
+    }
+
+    @Post('/createdestination')
+    @UseGuards(SessionGuard)
+    @UsePipes(new ValidationPipe())
+    @UseInterceptors(FileInterceptor('imageUrl',
+    { fileFilter: (req, file, cb) => {
+        if (file.originalname.match(/^.*\.(jpg|webp|png|jpeg)$/))
+        cb(null, true);
+    else {
+        cb(new MulterError('LIMIT_UNEXPECTED_FILE', 'image'), false);
+    }},
+    limits: { fileSize: 30000 },
+    storage:diskStorage({
+        destination: './Uploaded_Image',
+        filename: function (req, file, cb) {
+            cb(null,Date.now()+file.originalname)
+        },})
+    }))
+    addDestination(@Body() destinationInfo:DestinationForm, @UploadedFile()  myfile: Express.Multer.File) {
+        destinationInfo.imageUrl = myfile.filename;
+        return this.adminService.addDestination(destinationInfo);
+    }
+
+    @Put('/updatedestination/:id')
+    @UseGuards(SessionGuard)
+    @UsePipes(new ValidationPipe())
+    updateDestination(@Param('id') id:number, @Body() destinationInfo:DestinationForm){
+        return this.adminService.updateDestination(id,destinationInfo);
+    }
+
+    @Delete('/deletedestination/:id')
+    deleteDestination(@Param('id') id:number){
+        const result = this.adminService.deleteDestination(id);
+        
+        if (result) {
+            return { message: `Destination with ID ${id} deleted successfully.` };
+        } else {
+            return { message: `Destination with ID ${id} not found.` };
+        }
     }
 
     @Post('/sendemail')
     sendEmail(@Body() mydata){
         return this.adminService.sendEmail(mydata);
+    }
+
+    @Get('findcontentsbyadmin/:id')
+    getContentsByAdminId(@Param('id', ParseIntPipe) id: number): any {
+        return this.adminService.getContentsByAdminId(id);
+    }
+
+    @Get('findadminbycontent/:id')
+    getAdminByContentId(@Param('id', ParseIntPipe) id: number): any {
+        return this.adminService.getAdminByContentId(id);
+    }
+
+    @Get('findpackagebydestination/:id')
+    getPackageByDestinationId(@Param('id', ParseIntPipe) id: number): any {
+        return this.adminService.getPackageByDestinationId(id);
+    }
+
+    @Get('findcontentbydestination/:id')
+    getContentByDestinationId(@Param('id', ParseIntPipe) id: number): any {
+        return this.adminService.getContentByDestinationId(id);
+    }
+
+    @Post('/employee/create')
+    createEmployee(@Body() empData: EmployeeForm): any {
+    
+        return {
+            message: "Admin created successfully",
+            data: empData,
+        };
+    }
+
+    @Get('/employee/:id')
+    getEmployeeById(@Param('id') id: number): any {
+
+        return null;
+    }
+
+    @Put('/updateemployee/:id')
+    updateEmployee(){
+        return 'Employee Updated Succesfully';
+    }
+
+    @Delete('/deleteemployee/:id')
+    deleteEmployee(){
+          return 'Employee is deleted';
     }
 
 
@@ -223,31 +438,6 @@ export class AdminController
     @Delete('/deleteagent/:id')
     deleteAgent(){
           return 'Agent is deleted';
-    }
-
-    @Post('/employee/create')
-    createEmployee(@Body() empData: EmployeeForm): any {
-    
-        return {
-            message: "Admin created successfully",
-            data: empData,
-        };
-    }
-
-    @Get('/employee/:id')
-    getEmployeeById(@Param('id') id: number): any {
-
-        return null;
-    }
-
-    @Put('/updateemployee/:id')
-    updateEmployee(){
-        return 'Employee Updated Succesfully';
-    }
-
-    @Delete('/deleteemployee/:id')
-    deleteEmployee(){
-          return 'Employee is deleted';
     }
 
     @Delete('/deletecustomer/:id')

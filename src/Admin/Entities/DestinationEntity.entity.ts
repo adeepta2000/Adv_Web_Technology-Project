@@ -1,5 +1,6 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { PackageEntity } from "./PackageEntity.entity";
+import { ContentEntity } from "./ContentEntity.entity";
 
 @Entity("destination")
 export class DestinationEntity {
@@ -21,4 +22,7 @@ export class DestinationEntity {
 
     @OneToOne(() => PackageEntity, packages => packages.destination)
     package: PackageEntity; 
+
+    @OneToMany (() => ContentEntity , content => content.destination, { cascade: true })
+    contents : ContentEntity[];
 }

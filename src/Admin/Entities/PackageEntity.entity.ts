@@ -20,7 +20,7 @@ export class PackageEntity {
     duration:string;
 
     @OneToOne(() => DestinationEntity, destination => destination.package, { cascade: true }) 
-    @JoinColumn({ name: 'destinationId' })
+    @JoinColumn()
     destination: DestinationEntity;
 
 }
