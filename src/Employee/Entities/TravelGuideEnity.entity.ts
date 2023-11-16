@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { EmployeeEntity } from "./EmployeeEntity.entity";
+import { PackageEntity } from "src/Admin/Entities/PackageEntity.entity";
 
 
 
@@ -15,13 +16,9 @@ export class TravelGuideEntity{
     @Column()
     Description: string;
     @Column()
-    GuideID: number;
-    @Column()
     GuideName: string;
     @Column()
     GuideContact : string;
-    @Column()
-    PackageID : number;
     @Column()
     PackageName : string;
     @Column()
@@ -30,4 +27,7 @@ export class TravelGuideEntity{
     @ManyToOne(() => EmployeeEntity, employee => employee.travelGuides)
     @JoinColumn({ name: "GuideID" }) 
     guide: EmployeeEntity;
+
+    @OneToOne(() => PackageEntity, packageEntity => packageEntity.travelGuide)
+    package: PackageEntity;
 }

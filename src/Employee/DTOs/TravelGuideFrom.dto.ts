@@ -9,10 +9,6 @@ export class HotelForm{
     Location: string;
     
     Description: string;
-
-
-    @IsInt()
-    GuideID: string;
     
     @IsString()
     GuideName: string;
@@ -21,9 +17,6 @@ export class HotelForm{
 
     @IsNumber()
     GuideContact : string;
-
-    @IsInt()
-    PackageID: string;
 
     @IsString()
     PackageName : string;
