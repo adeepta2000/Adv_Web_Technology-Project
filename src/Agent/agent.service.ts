@@ -1,9 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { agentEntity, agentbookingsEntity, agenttourPackagesEntity } from './agent.entity'; 
+import { SupportEntity, agentEntity, agentbookingsEntity, agenttourPackagesEntity } from './agent.entity'; 
 import { Repository } from 'typeorm';
-import { agentDTO, bookingsInfo, tourPackagesInfo } from './agent.dto'; 
+import { SupportDTO, agentDTO, agentLogin, bookingsInfo, tourPackagesInfo } from './agent.dto'; 
 import { PasswordUtil } from './Utils.ts/bcrypt';
+import { MailerService } from '@nestjs-modules/mailer';
 
 
 @Injectable()
@@ -29,8 +30,12 @@ export class agentService {
     @InjectRepository(agenttourPackagesEntity)
     private agentPackagesRepo:Repository<agenttourPackagesEntity>,
     @InjectRepository(agentbookingsEntity)  
-    private agentBookingsRepo:Repository<agentbookingsEntity>
+    private agentBookingsRepo:Repository<agentbookingsEntity>,
+    private readonly mailerService: MailerService,
+    @InjectRepository(SupportEntity)
+    private agentsupportRepo:Repository<SupportEntity>,
     )
+    
   
   {}
 
@@ -42,8 +47,6 @@ async createAgent(agentData: agentDTO): Promise<agentEntity> {
   agentData.password = hashedPassword;
 
   const { email } = agentData;
-
-  // Check if an agent with the same email already exists
   const existingAgent = await this.agentRepo.findOne({ where: { email } });
 
   if (existingAgent) {
@@ -58,22 +61,24 @@ async createAgent(agentData: agentDTO): Promise<agentEntity> {
 async addTourPackages(tourPackages:tourPackagesInfo):Promise<agenttourPackagesEntity[]>
 {
  const res = await this.agentPackagesRepo.save(tourPackages);
+const agents = await this.agentRepo.find();
+
+for(const agent of agents){
+  const emailOptions = {
+    to: agent.email,
+    subject:'New Tour Package added',
+    text: `Dear ${agent.name},\n\nA new tour package added`
+  };
+    await this.mailerService.sendMail(emailOptions)
+  
+}
+
  return this.agentPackagesRepo.find();
 }
 
 //Get all AGENTS
 getAll(): Promise<agentEntity[]> {
   return this.agentRepo.find(
-    {
-      select:{
-        id:true,
-        name: true,
-        email:true,
-        address:true
-      
-      }
-      
-    }
   );
 }
 
@@ -125,7 +130,7 @@ async addbookings(bookings: bookingsInfo): Promise<agentbookingsEntity> {
 }
 
 //Login using agentDTO
-async login(credentials: agentDTO): Promise<boolean> {
+async login(credentials: agentLogin): Promise<boolean> {
   const agent = await this.agentRepo.findOne({ where: { email: credentials.email } });
 
   if (!agent) {
@@ -148,6 +153,44 @@ async getTourPackagesByCreatorId(creatorId: number): Promise<agenttourPackagesEn
     where: { creator_id: creatorId },
   });
 }
+
+
+// Mailer
+async sendEmail() {
+  try {
+    const result = await this.mailerService.sendMail({
+      to: 'movienamabo772@gmail.com', // Recipient's email address
+      subject: 'Test Email', // Email subject
+      text: 'This is a test email.', // Email content
+    });
+    console.log('Email sent:', result);
+  } catch (error) {
+    console.error('Email sending failed:', error);
+  }
+}
+
+async createSupport(supportData: Partial<SupportEntity>): Promise<SupportEntity> {
+  const support = this.agentsupportRepo.create(supportData);
+  return this.agentsupportRepo.save(support);
+}
+
+async getAllSupport(): Promise<SupportEntity[]> {
+  return this.agentsupportRepo.find();
+  }
+
+  async updateSupport(booking_id: number, supportDTO: SupportDTO): Promise<SupportEntity> {
+    const support = await this.agentsupportRepo.findOne({ where: { booking_id } });
+    if (!support) {
+      throw new Error(`Agent with ID ${booking_id} not found.`);
+    }
+    support.complaint = supportDTO.complaint;
+    support.resolution = supportDTO.resolution;
+    
+  
+    return this.agentsupportRepo.save(support); 
+  }
+
+
 
 
 }

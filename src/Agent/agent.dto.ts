@@ -1,17 +1,27 @@
 import { IsEmail, IsString, IsNotEmpty, IsNumber, IsDate, IsOptional } from "class-validator";
 export class agentDTO{
-    @IsString() @IsOptional()
-    name: string;
     @IsNumber() @IsOptional()
     id: number;
+    @IsString() @IsOptional()
+    name: string;
     @IsEmail() @IsNotEmpty()
     email: string;
     @IsString() @IsNotEmpty()
     password: string;
     @IsString()@IsOptional()
     address: string;
+    @IsString()  @IsOptional()
+    contact: string;
     @IsOptional()
     file:string;
+}
+export class agentLogin{
+    @IsNotEmpty()
+    @IsEmail()
+    email:string;
+    @IsNotEmpty()
+    @IsString()
+    password: string;
 }
 
 export class tourPackagesInfo{
@@ -48,15 +58,14 @@ export class bookingsInfo{
     @IsNumber()
     person:number;
 }
-export class ComplaintsAndResolutionsInfo {
+export class SupportDTO {
     @IsNumber()
     booking_id: number;
-    @IsString()
-    tourist_Name: string;
+    @IsNumber()
+    creator_id: number;
     @IsString()
     complaint: string;
     @IsString()
     resolution: string;
 
 }
-
