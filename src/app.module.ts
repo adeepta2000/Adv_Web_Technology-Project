@@ -5,11 +5,11 @@ import { AdminModule } from './Admin/AdminModule.module';
 import { EmployeeModule } from './Employee/EmployeeModule.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AgentModule } from './Agent/agent.module';
-
+import { customerModule } from './Customer/DTOs/customer.module';
 
 
 @Module({
-  imports: [AdminModule, EmployeeModule, AgentModule, TypeOrmModule.forRoot(
+  imports: [AdminModule, EmployeeModule,customerModule, AgentModule, TypeOrmModule.forRoot(
     { type: 'postgres',
     host: 'localhost',
     port: 5432,
