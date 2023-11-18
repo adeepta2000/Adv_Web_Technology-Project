@@ -6,8 +6,12 @@ import { EmployeeEntity } from "./Entities/EmployeeEntity.entity";
 import { MailerService } from "@nestjs-modules/mailer/dist";
 import { HotelEntity } from "./Entities/HotelEntity.entity";
 import { TravelGuideEntity } from "./Entities/TravelGuideEnity.entity";
-import { PasswordUtils } from "./EmployeeUntils.ts/bcrypt";
 import * as bcrypt from 'bcrypt';
+import { PackageEntity } from "src/Admin/Entities/PackageEntity.entity";
+import { HotelForm } from "./DTOs/HotelFrom.dto";
+import { TravelGuideForm } from "./DTOs/TravelGuideFrom.dto";
+import { TransportEntity } from "./Entities/TransportEntity.entity";
+import { TransportFrom } from "./DTOs/TransportFrom.dto";
 
 
 @Injectable()
@@ -20,6 +24,8 @@ export class EmployeeService {
     private HotelRepo:Repository<HotelEntity>,
     @InjectRepository(TravelGuideEntity)  
     private TravelGuideRepo:Repository<TravelGuideEntity>,
+    @InjectRepository(TransportEntity) 
+    private TransportRepo: Repository<TransportEntity>,
     
     private readonly mailerService: MailerService,
     
@@ -35,12 +41,12 @@ export class EmployeeService {
 
 
     //CREATE NEW Employee
-    async addEmployee(employeeForm: EmployeeForm): Promise<EmployeeEntity[]>{
+    async addEmployee(employeedto: EmployeeForm): Promise<EmployeeEntity[]>{
 
       const salt = await bcrypt.genSalt();
-      const hassedpassed = await bcrypt.hash(employeeForm.password, salt);
-      employeeForm.password= hassedpassed;
-      const response = await this.EmployeeRepo.save(employeeForm);
+      const hassedpassed = await bcrypt.hash(employeedto.password, salt);
+      employeedto.password= hassedpassed;
+      await this.EmployeeRepo.save(employeedto);
       return this.EmployeeRepo.find();
 
     }
@@ -57,22 +63,19 @@ export class EmployeeService {
       await this.EmployeeRepo.delete(id); 
     }
 
-    //Login using EmployeeForm
-async login(credentials: EmployeeForm): Promise<boolean> {
-  const employee = await this.EmployeeRepo.findOne({ where: { username: credentials.username } });
 
-  if (!employee) {
-    throw new UnauthorizedException('Employee not found');
+async signin(mydto){
+
+  const mydata= await this.EmployeeRepo.findOneBy({username: mydto.username});
+  const isMatch= await bcrypt.compare(mydto.password, mydata.password);
+
+  if(isMatch) {
+    return 1;
   }
 
-  // Use your preferred method to compare the hashed password
-  const passwordMatch = await PasswordUtils.comparePassword(credentials.password, employee.password);
-
-  if (!passwordMatch) {
-    throw new UnauthorizedException('Invalid password');
-  }
-
-  return true;
+  else {
+      return 0;
+  } 
 }
 
 
@@ -93,5 +96,110 @@ async login(credentials: EmployeeForm): Promise<boolean> {
       }
     }
 
+
+
+    async addhotel(hoteldto: HotelForm): Promise<HotelEntity[]>{
+
+      await this.HotelRepo.save(hoteldto);
+      return this.HotelRepo.find();
+
+    }
+
+   async updatehotel(id:number, hoteldto: HotelForm): Promise<HotelEntity>{
+
+
+      await this.HotelRepo.update(id,hoteldto);
+      return this.HotelRepo.findOneBy({id});
+
+    }
+
+
+    
+
+   /* updatehotel(id:number, hoteldto: HotelForm): Promise<HotelEntity>
+    {
+     const res=  this.HotelRepo.update(id,hoteldto);
   
+       return this.HotelRepo.findOneBy({id});
+    }*/
+
+    
+    gethotelByID(id:number): Promise<HotelEntity> {
+    return this.HotelRepo.findOneBy({id:id});
+    }
+
+
+    async getAllhotel(): Promise<HotelEntity[]>{
+      return this.HotelRepo.find();
+    }
+
+    async deletehotel(id:number):Promise<void>{
+      await this.HotelRepo.delete(id); 
+    }
+
+
+    async addTravelguide(travelguidedto: TravelGuideForm): Promise<TravelGuideEntity[]>{
+
+      await this.TravelGuideRepo.save(travelguidedto);
+      return this.TravelGuideRepo.find();
+
+    }
+
+
+    
+   async updateTravelguide(id:number, travelguidedto: TravelGuideForm): Promise<TravelGuideEntity>{
+
+
+    await this.TravelGuideRepo.update(id,travelguidedto);
+    return this.TravelGuideRepo.findOneBy({id});
+
+  }
+
+
+  getTravelByID(id:number): Promise<TravelGuideEntity> {
+    return this.TravelGuideRepo.findOneBy({id:id});
+    }
+
+
+    async getAllTravelGuide(): Promise<TravelGuideEntity[]>{
+      return this.TravelGuideRepo.find();
+    }
+
+
+    async deleteTravelGuide(id:number):Promise<void>{
+      await this.TravelGuideRepo.delete(id); 
+    }
+
+    
+    
+    async addTransport(transportdto: TransportFrom): Promise<TransportEntity[]>{
+
+      await this.TransportRepo.save(transportdto);
+      return this.TransportRepo.find();
+
+    }
+    
+
+    async updateTransport(id:number, transportdto: TransportFrom): Promise<TransportEntity>{
+
+
+      await this.TransportRepo.update(id,transportdto);
+      return this.TransportRepo.findOneBy({id});
+  
+    }
+
+
+    getTransportByID(id:number): Promise<TransportEntity> {
+      return this.TransportRepo.findOneBy({id:id});
+      }
+   
+
+      async getAllTransport(): Promise<TransportEntity[]>{
+        return this.TransportRepo.find();
+      }
+
+
+      async deleteTransport(id:number):Promise<void>{
+        await this.TransportRepo.delete(id); 
+      }
 }

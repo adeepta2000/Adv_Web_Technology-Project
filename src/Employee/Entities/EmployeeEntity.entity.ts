@@ -6,6 +6,7 @@ import { TravelGuideEntity } from "./TravelGuideEnity.entity";
 
 @Entity("employee")
 export class EmployeeEntity{
+    
 @PrimaryGeneratedColumn()
 id: number;
 @Column()
@@ -27,6 +28,9 @@ filename:string;
 
 @OneToMany(() => HotelEntity, hotel => hotel.employee)
     hotels: HotelEntity[];
-    @OneToMany(() => TravelGuideEntity, travelGuide => travelGuide.guide)
+
+
+@OneToMany(() => TravelGuideEntity, travelGuide => travelGuide.guide)
     travelGuides: TravelGuideEntity[];
+    
 }

@@ -6,6 +6,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { MailerModule } from "@nestjs-modules/mailer";
 import { HotelEntity } from "./Entities/HotelEntity.entity";
 import { TravelGuideEntity } from "./Entities/TravelGuideEnity.entity";
+import { TransportEntity } from "./Entities/TransportEntity.entity";
 
 
 
@@ -20,7 +21,7 @@ import { TravelGuideEntity } from "./Entities/TravelGuideEnity.entity";
         user: 'asifalmamunrafi2020@gmail.com',
         pass: 'tehs wjdc sbko bvlt'
         },
-        }}),TypeOrmModule.forFeature([EmployeeEntity,HotelEntity,TravelGuideEntity])],
+        }}),TypeOrmModule.forFeature([EmployeeEntity,HotelEntity,TravelGuideEntity,TransportEntity])],
     controllers:[EmployeeController],
     providers: [EmployeeService]
 })
