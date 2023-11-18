@@ -2,10 +2,10 @@ import { IsEmail, IsNotEmpty, IsNumber, IsString, Matches } from "class-validato
 
 export class EmployeeForm{
 
-    @IsString()
+    @IsNotEmpty()
     firstname: string;
 
-    @IsString()
+    @IsNotEmpty()
     lastname: string;
 
     //@Equals("FirstName", { message: "Firstname do not match with username" })

@@ -1,22 +1,20 @@
 import { IsInt, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
-export class HotelForm{
+export class TravelGuideForm{
 
     @IsNotEmpty()
     DestinationName: string;
 
     @IsString()
-    Location: string;
+    Address: string;
     
     Description: string;
     
     @IsString()
     GuideName: string;
 
-    address: string;
-
-    @IsNumber()
-    GuideContact : string;
+   
+    Contact : string;
 
     @IsString()
     PackageName : string;

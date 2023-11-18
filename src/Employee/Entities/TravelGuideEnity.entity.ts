@@ -8,26 +8,30 @@ import { PackageEntity } from "src/Admin/Entities/PackageEntity.entity";
 @Entity("travelguide")
 export class TravelGuideEntity{
     @PrimaryGeneratedColumn()
-    ID: number;
+    id: number;
     @Column()
     DestinationName: string;
     @Column()
-    Location: string;
+    Address: string;
     @Column()
     Description: string;
     @Column()
     GuideName: string;
     @Column()
-    GuideContact : string;
+    Contact : string;
     @Column()
     PackageName : string;
     @Column()
     Price : string;
 
-    @ManyToOne(() => EmployeeEntity, employee => employee.travelGuides)
-    @JoinColumn({ name: "GuideID" }) 
-    guide: EmployeeEntity;
 
     @OneToOne(() => PackageEntity, packageEntity => packageEntity.travelGuide)
+    @JoinColumn({name:"packageID"})
     package: PackageEntity;
+
+    @ManyToOne(() => EmployeeEntity, employee => employee.travelGuides)
+    @JoinColumn({ name: "employeeID" }) 
+    guide: EmployeeEntity;
+
+  
 }

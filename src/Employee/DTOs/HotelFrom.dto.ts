@@ -5,19 +5,14 @@ export class HotelForm{
     @IsNotEmpty()
     HotelName: string;
 
-    @IsString()
-    Location: string;
-
     @IsNumber()
     Rating: string;
     
     @IsString()
     PriceRange: string;
 
-    address: string;
+    Address: string;
 
     Description: string;
 
-    @IsNumber()
-    contact : string;
 }

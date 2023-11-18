@@ -7,19 +7,17 @@ import { EmployeeEntity } from "./EmployeeEntity.entity";
 export class HotelEntity{
     
         @PrimaryGeneratedColumn()
-        Id: number;
+        id: number;
         @Column()
         HotelName: string;
-        @Column()
-        Location: string;
+     
         @Column()
         Rating: string;
         @Column()
         PriceRange: string;
+       
         @Column()
-        Contact: string;
-        @Column()
-        address : string;
+        Address : string;
         @Column()
         Description : string;
 
