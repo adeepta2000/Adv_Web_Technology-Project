@@ -158,6 +158,10 @@ export class AdminService{
         return this.destinationRepo.findOneBy({id:id});
       }
 
+      async searchDestinationByName(name:string): Promise<DestinationEntity>{
+        return this.destinationRepo.findOneBy({name:name});
+      }
+
       async addDestination(data: DestinationForm): Promise<DestinationEntity[]>{
         
         await this.destinationRepo.save(data);

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, ParseIntPipe, UsePipes, ValidationPipe, UseInterceptors, UploadedFile, Session, HttpException, HttpStatus, UnauthorizedException, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, ParseIntPipe, UsePipes, ValidationPipe, UseInterceptors, UploadedFile, Session, HttpException, HttpStatus, UnauthorizedException, UseGuards, Query, Res } from "@nestjs/common";
 import { AdminForm } from "./DTOs/AdminForm.dto";
 import { EmployeeForm } from "src/Employee/DTOs/EmployeeForm.dto";
 import { ContentForm } from "./DTOs/ContentForm.dto";
@@ -209,6 +209,11 @@ export class AdminController
         return file;
     }
 
+    @Get('/getprofilepic/:name')
+    getProfilePicture(@Param('name') name:string, @Res() res) {
+        res.sendFile(name,{ root: './Uploaded_Image' })
+    }
+
     @Get('/contents')
     async getAllContents() : Promise<any>{
         try{
@@ -289,7 +294,7 @@ export class AdminController
     }
 
     @Post('/package/create')
-    @UseGuards(SessionGuard)
+    //@UseGuards(SessionGuard)
     createPackage(@Body() packageData: PackageForm) {
     
         return this.adminService.addPackage(packageData);
@@ -324,8 +329,25 @@ export class AdminController
         return this.adminService.getDestinationById(id);
     }
 
+    @Get('/searchdestinationdyname')
+    async searchDestinationByName(@Query('name') name: string): Promise<any> {
+        try {
+            const result = await this.adminService.searchDestinationByName(name);
+
+            return { message: "Destination search successful.", result };
+        } catch (error) {
+            throw new HttpException(
+                {
+                    status: HttpStatus.INTERNAL_SERVER_ERROR,
+                    error: 'An error occurred during destination search.',
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
     @Post('/createdestination')
-    @UseGuards(SessionGuard)
+    //@UseGuards(SessionGuard)
     @UsePipes(new ValidationPipe())
     @UseInterceptors(FileInterceptor('imageUrl',
     { fileFilter: (req, file, cb) => {
