@@ -24,5 +24,6 @@ export class TransportEntity{
     schedule: string;
     @Column()
     facilities: string;
+    
 
 }
