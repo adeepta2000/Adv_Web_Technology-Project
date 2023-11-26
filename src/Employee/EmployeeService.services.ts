@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { EmployeeForm } from "./DTOs/EmployeeForm.dto";
@@ -7,7 +7,6 @@ import { MailerService } from "@nestjs-modules/mailer/dist";
 import { HotelEntity } from "./Entities/HotelEntity.entity";
 import { TravelGuideEntity } from "./Entities/TravelGuideEnity.entity";
 import * as bcrypt from 'bcrypt';
-import { PackageEntity } from "src/Admin/Entities/PackageEntity.entity";
 import { HotelForm } from "./DTOs/HotelFrom.dto";
 import { TravelGuideForm } from "./DTOs/TravelGuideFrom.dto";
 import { TransportEntity } from "./Entities/TransportEntity.entity";
@@ -31,12 +30,26 @@ export class EmployeeService {
     
   )
   {}
+
+
   getAll(): Promise<EmployeeEntity[]> {
-    return this.EmployeeRepo.find()
+    return this.EmployeeRepo.find({ relations: ['hotels', 'travelGuides'] })
   }
 
-  getEmployeeByID(id:number): Promise<EmployeeEntity> {
-    return this.EmployeeRepo.findOneBy({id:id});
+
+
+  getEmployeeByID(id:number): Promise<any> 
+   // return this.EmployeeRepo.findOneBy({id:id});
+   {
+    return this.EmployeeRepo.find({ 
+      where: {id:id},
+      relations: {
+        hotels: true,
+        travelGuides: true
+
+        },
+     });
+
     }
 
 
@@ -52,16 +65,22 @@ export class EmployeeService {
     }
 
 
-    updateEmployee(id:number, employeefrom:EmployeeForm):Promise<EmployeeEntity>
+
+
+    updateEmployee(id:number, employeedto:EmployeeForm):Promise<EmployeeEntity>
     {
-     const res=  this.EmployeeRepo.update(id,employeefrom);
+     const res=  this.EmployeeRepo.update(id,employeedto);
   
        return this.EmployeeRepo.findOneBy({id});
     }
 
+
+
     async deleteEmployee(id:number):Promise<void>{
       await this.EmployeeRepo.delete(id); 
     }
+
+
 
 
 async signin(mydto){
@@ -77,6 +96,7 @@ async signin(mydto){
       return 0;
   } 
 }
+
 
 
   
@@ -98,6 +118,8 @@ async signin(mydto){
 
 
 
+
+
     async addhotel(hoteldto: HotelForm): Promise<HotelEntity[]>{
 
       await this.HotelRepo.save(hoteldto);
@@ -116,26 +138,35 @@ async signin(mydto){
 
     
 
-   /* updatehotel(id:number, hoteldto: HotelForm): Promise<HotelEntity>
-    {
-     const res=  this.HotelRepo.update(id,hoteldto);
-  
-       return this.HotelRepo.findOneBy({id});
-    }*/
+   
+
 
     
-    gethotelByID(id:number): Promise<HotelEntity> {
-    return this.HotelRepo.findOneBy({id:id});
+    gethotelByID(id:number): Promise<any> {
+
+      return this.HotelRepo.find({ 
+        where: {id:id},
+        relations: {
+          employee: true
+  
+          },
+       });
     }
+
+
 
 
     async getAllhotel(): Promise<HotelEntity[]>{
-      return this.HotelRepo.find();
+      return this.HotelRepo.find({ relations: ['employee'] });
     }
+
+
 
     async deletehotel(id:number):Promise<void>{
       await this.HotelRepo.delete(id); 
     }
+
+
 
 
     async addTravelguide(travelguidedto: TravelGuideForm): Promise<TravelGuideEntity[]>{
@@ -144,6 +175,8 @@ async signin(mydto){
       return this.TravelGuideRepo.find();
 
     }
+
+
 
 
     
@@ -156,20 +189,36 @@ async signin(mydto){
   }
 
 
-  getTravelByID(id:number): Promise<TravelGuideEntity> {
-    return this.TravelGuideRepo.findOneBy({id:id});
+
+
+  getTravelByID(id:number): Promise<any> {
+
+
+    return this.TravelGuideRepo.find({ 
+      where: {id:id},
+      relations: {
+        guide: true,
+        package: true
+
+        },
+     });
     }
+
+
 
 
     async getAllTravelGuide(): Promise<TravelGuideEntity[]>{
-      return this.TravelGuideRepo.find();
+      return this.TravelGuideRepo.find({ relations: ['guide', 'package'] });
     }
+
+
 
 
     async deleteTravelGuide(id:number):Promise<void>{
       await this.TravelGuideRepo.delete(id); 
     }
 
+ 
     
     
     async addTransport(transportdto: TransportFrom): Promise<TransportEntity[]>{
@@ -180,6 +229,8 @@ async signin(mydto){
     }
     
 
+
+
     async updateTransport(id:number, transportdto: TransportFrom): Promise<TransportEntity>{
 
 
@@ -189,17 +240,26 @@ async signin(mydto){
     }
 
 
+
     getTransportByID(id:number): Promise<TransportEntity> {
       return this.TransportRepo.findOneBy({id:id});
       }
    
+
+
 
       async getAllTransport(): Promise<TransportEntity[]>{
         return this.TransportRepo.find();
       }
 
 
+
+
+
       async deleteTransport(id:number):Promise<void>{
         await this.TransportRepo.delete(id); 
       }
+
+
+      
 }
