@@ -34,6 +34,10 @@ export class AdminService{
         return this.adminRepo.find();
       }
 
+      async getAdminByEmail(email: string): Promise<AdminEntity> {
+        return this.adminRepo.findOneBy({ email: email });
+    }
+
       async getAdminById(id:number): Promise<AdminEntity>{
         return this.adminRepo.findOneBy({id:id});
       }

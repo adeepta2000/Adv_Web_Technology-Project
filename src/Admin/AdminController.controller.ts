@@ -28,12 +28,12 @@ export class AdminController
               session.email = mydto.email;
               console.log(session.email);
 
-              return { message: "User Login Successful." };
+              return {success: true, message: "User Login Successful." };
 
             } 
             else {
 
-              return { message: "Invalid email or password." };
+              return {success: false, message: "Invalid email or password." };
 
             }
           } catch (error) {
@@ -99,6 +99,16 @@ export class AdminController
             },
             HttpStatus.NOT_FOUND,
             );
+        }
+    }
+
+    @Get('/getadminby/:email')
+    async getAdminByEmail(@Param('email') email: string): Promise<AdminEntity> {
+        const res = await this.adminService.getAdminByEmail(email);
+        if (res !== null) {
+            return res;
+        } else {
+            throw new HttpException("Admin not found", HttpStatus.NOT_FOUND);
         }
     }
 
